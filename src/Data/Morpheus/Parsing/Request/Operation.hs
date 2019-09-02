@@ -8,8 +8,8 @@ module Data.Morpheus.Parsing.Request.Operation
 
 import           Data.Functor                               (($>))
 import           Data.Text                                  (Text)
-import           Text.Megaparsec                            (label, (<?>), (<|>))
-import           Text.Megaparsec.Char                       (string)
+import           Text.Megaparsec                            (label, lookAhead, optional, try, (<?>), (<|>))
+import           Text.Megaparsec.Char                       (char, string)
 
 --
 -- MORPHEUS
@@ -51,6 +51,7 @@ parseAnonymousQuery :: Parser RawOperation
 parseAnonymousQuery =
   label "AnonymousQuery" $ do
     operationPosition <- getLocation
+    _ <- optional $ try $ string "query" >> spaceAndComments1 >> lookAhead (char '{')
     operationSelection <- entries
     pure
       (Operation
